@@ -10,6 +10,7 @@ PR = "r4"
 S = "${WORKDIR}"
 
 INHIBIT_PACKAGE_STRIP = "1"
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 do_compile() {
 }
@@ -22,8 +23,8 @@ do_install() {
     install -d ${D}/${sysconfdir}/modules-load.d
     for i in tpm modloader modloader2 dvb; do
         install -m 0755 ${WORKDIR}/$i.ko ${D}/lib/modules/${KV}/extra
-        echo $i >> ${D}/${sysconfdir}/modules-load.d/_${MACHINE}.conf
+        echo $i >> ${D}/${sysconfdir}/modules-load.d/_e3hd.conf
     done
 }
 
-FILES_${PN} += "${sysconfdir}/modules-load.d/_${MACHINE}.conf /lib/modules/${KV}/extra"
+FILES:${PN} += "${sysconfdir}/modules-load.d/_e3hd.conf /lib/modules/${KV}/extra"
