@@ -10,7 +10,9 @@ SRC_URI[sha256sum] = "35ec09f2c959c891fd8916430043be11a46493844708225f64680b9d25
 
 LIC_FILES_CHKSUM = "file://${WORKDIR}/linux-${PV}/COPYING;md5=d7810fab7487fb0aad327b76f1be7cd7"
 
-MACHINE_KERNEL_PR_append = ".1"
+KERNEL_RELEASE = "3.18.24"
+COMPATIBLE_MACHINE = "e3hd"
+MACHINE_KERNEL_PR_append = ".0"
 
 # By default, kernel.bbclass modifies package names to allow multiple kernels
 # to be installed in parallel. We revert this change and rprovide the versioned
@@ -18,7 +20,7 @@ MACHINE_KERNEL_PR_append = ".1"
 PKG_${KERNEL_PACKAGE_NAME}-base = "kernel-base"
 PKG_${KERNEL_PACKAGE_NAME}-image = "kernel-image"
 RPROVIDES_${KERNEL_PACKAGE_NAME}-base = "kernel-${KERNEL_VERSION}"
-RPROVIDES_kernel-image = "kernel-image-${KERNEL_VERSION}"
+RPROVIDES_${KERNEL_PACKAGE_NAME}-image = "kernel-image-${KERNEL_VERSION}"
 
 SRC_URI += "http://source.mynonpublic.com/download/odin-linux-${PV}.tar.xz \
     file://defconfig \
@@ -52,13 +54,13 @@ KERNEL_EXTRA_ARGS = "EXTRA_CFLAGS=-Wno-attribute-alias"
 
 FILES:${KERNEL_PACKAGE_NAME}-image = "/${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}.gz"
 
-kernel_do_install_append() {
+kernel_do_install:append() {
     ${STRIP} ${D}/${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION}
     gzip -9c ${D}/${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION} > ${D}/${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}.gz
     rm ${D}/${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}-${KERNEL_VERSION}
 }
 
-pkg_postinst_kernel-image () {
+pkg_postinst:kernel-image () {
     if [ "x$D" == "x" ]; then
         if [ -f /${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}.gz ] ; then
             flash_erase /dev/${MTD_KERNEL} 0 0
@@ -69,8 +71,4 @@ pkg_postinst_kernel-image () {
     true
 }
 
-do_rm_work() {
-}
 
-# extra tasks
-addtask kernel_link_images after do_compile before do_install
